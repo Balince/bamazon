@@ -2,45 +2,44 @@ var mysql = require("mysql");
 var inquirer = require("inquirer");
 
 
-// create the connection information for the sql database
+
 var connection = mysql.createConnection({
     host: "localhost",
 
-    // Your port; if not 3306
+    
     port: 3306,
 
-    // Your username
+    
     user: "root",
 
-    // Your password
+    
     password: "Longpass1",
     database: "bamazon"
 });
 
-// connect to the mysql server and sql database
+
 connection.connect(function (err) {
     if (err) throw err;
-    // run the start function after the connection is made to prompt the user
-    showTable();
+    
+    
 });
 
-console.log("---------------------")
-console.log("ID | Products | Price")
-console.log("---------------------")
+    
 
     function showTable () {
-        connection.query("SELECT * FROM Products", function (err, res) {
+        connection.query("SELECT ID, Products, Department, Price FROM products", function (err, res) {
             if (err) throw err;
+            
             console.table(res)
             
         })
         
-        itemChoice();
+        setTimeout(itemChoice, 10)
     }
-
+    
         function itemChoice () {
-            inquirer.prompt([ {
-                name: "answer",
+           inquirer.prompt([ {
+                name: "ID",
                 type: "input",
                 message: "\nWhat item would you like to purchase? Please enter ID number\n",
                 filter: Number
@@ -48,16 +47,40 @@ console.log("---------------------")
             ])
 
             .then (function(answers) {
-                var productID = answers;
-                productCheck(productID);
+                var productID = answers.ID;
+                var subtract = 1;
+                // productCheck(productID);
+                productCheck(productID, subtract);
+                
+                
             });
-
-        function productCheck (answers) {
-
-        }
-
-
         }
         
-    
-    
+        function productCheck (answers, minus) {
+                connection.query('SELECT * FROM products WHERE ID = ' + answers, function (err, res) {
+                    if (err) throw err;
+
+                    connection.query("UPDATE products SET Stock = Stock - " + minus-- + "WHERE ID = " + answers);
+
+                    if (res[0].Stock > 0) {
+
+                    console.log("You've purchased a beautiful new " + res[0].Products + ", " + "there is only " + res[0].Stock + " left.");
+
+                    } else {
+                        
+                    console.log("There is no " + res[0].Products + " left, please choose a new item")
+                    }
+
+                    showTable();
+                });
+                
+        };
+            
+        // function test (answers, minus) {
+        //     connection.query("SELECT ID, Products, Department, Price FROM products");
+        //     connection.query('UPDATE products SET Stock = Stock - ' + minus);
+        //     console.log("There is only " + answers + ID + "left");
+        //     }
+        showTable();
+
+        
