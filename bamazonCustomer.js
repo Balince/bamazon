@@ -56,12 +56,13 @@ connection.connect(function (err) {
             });
         }
         
-        function productCheck (answers, minus) {
+        async function productCheck (answers, minus) {
                 connection.query('SELECT * FROM products WHERE ID = ' + answers, function (err, res) {
                     if (err) throw err;
-
-                    connection.query("UPDATE products SET Stock = Stock - " + minus-- + "WHERE ID = " + answers);
-
+                    
+                    
+                   connection.query("UPDATE products SET Stock = Stock - " + newStock + "WHERE ID = " + answers);
+                   
                     if (res[0].Stock > 0) {
 
                     console.log("You've purchased a beautiful new " + res[0].Products + ", " + "there is only " + res[0].Stock + " left.");
@@ -69,6 +70,7 @@ connection.connect(function (err) {
                     } else {
                         
                     console.log("There is no " + res[0].Products + " left, please choose a new item")
+
                     }
 
                     showTable();
